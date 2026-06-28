@@ -12,7 +12,6 @@ function selectDate(dateStr) {
   renderDay(dateStr);
   updateNavDate(dateStr);
   updateSelectedLabel(dateStr);
-  collapseCalendar();
 }
 
 // ─── 自动撑高 textarea ───

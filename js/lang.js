@@ -104,4 +104,13 @@ function initLang(onChange) {
   });
   // 首次应用静态文本
   applyStaticI18n();
+
+  // ── 键盘快捷键：Ctrl+L / ⌘L 切换中英文 ──
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+      e.preventDefault();
+      const next = currentLang === 'zh' ? 'en' : 'zh';
+      setLang(next);
+    }
+  });
 }
