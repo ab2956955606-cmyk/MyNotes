@@ -12,6 +12,10 @@
   <img src="https://img.shields.io/badge/license-MIT-blue" />
 </p>
 
+<p align="center">
+  <img src="screenshot.png" alt="MyNotes 截图" width="380" />
+</p>
+
 ---
 
 <h2 align="center">🇨🇳 中文版</h2>
