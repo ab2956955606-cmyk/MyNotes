@@ -20,15 +20,21 @@
         <rect x="4" y="2" width="16" height="20" rx="3" fill="#007aff" opacity=".2"/>
         <path d="M8 7h8M8 11h8M8 15h5" stroke="#007aff" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      我的笔记
+      <span data-i18n="navTitle">我的笔记</span>
     </div>
     <div class="nav-right">
+      <div class="lang-selector">
+        <span class="lang-label">Language</span>
+        <span class="lang-opt active" data-lang="zh">中文</span>
+        <span class="lang-sep">|</span>
+        <span class="lang-opt" data-lang="en">EN</span>
+      </div>
       <span class="nav-date" id="navDate"></span>
-      <button class="btn-today" id="btnToday">今天</button>
+      <button class="btn-today" id="btnToday" data-i18n="btnToday">今天</button>
     </div>
   </div>
   <div class="nav-toggle" id="calToggle">
-    日历 <span class="arrow" id="calArrow">▸</span>
+    <span data-i18n="navToggle">日历</span> <span class="arrow" id="calArrow">▸</span>
   </div>
 </header>
 
@@ -54,14 +60,14 @@
       </div>
     </div>
     <div class="cal-note">
-      <div class="cal-note-label">📝 备注</div>
-      <textarea id="calNoteInput" placeholder="这个月的备注…"></textarea>
+      <div class="cal-note-label" data-i18n="notesLabel">📝 备注</div>
+      <textarea id="calNoteInput" data-i18n-placeholder="notesPlaceholder" placeholder="这个月的备注…"></textarea>
     </div>
   </div>
 
   <!-- 规划与完成情况 -->
   <div class="panel">
-    <div class="panel-title">
+    <div class="panel-title" data-i18n="panelTitle">
       📋 规划与完成情况
       <span class="badge" id="planCount">0 项</span>
     </div>
@@ -83,10 +89,10 @@
             <div class="tp-col-sep"></div>
             <div class="tp-col" id="tpColMin"></div>
           </div>
-          <div class="tp-confirm"><button id="tpConfirm">完成</button></div>
+          <div class="tp-confirm"><button id="tpConfirm" data-i18n="tpConfirm">完成</button></div>
         </div>
       </div>
-      <textarea id="planInput" placeholder="添加事项…" rows="1"></textarea>
+      <textarea id="planInput" placeholder="添加事项…" rows="1" data-i18n-placeholder="addPlaceholder"></textarea>
       <button class="plan-add-btn" id="addPlanBtn">+</button>
     </div>
   </div>
@@ -96,6 +102,7 @@
 <script src="js/helpers.js"></script>
 <script src="js/state.js"></script>
 <script src="js/storage.js"></script>
+<script src="js/lang.js"></script>
 <script src="js/notes.js"></script>
 <script src="js/timepicker.js"></script>
 <script src="js/calendar.js"></script>

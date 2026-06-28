@@ -1,6 +1,23 @@
 /* ============ 应用入口：协调各模块 ============ */
 
 (function init() {
+  // ── 语言系统 ──
+  initLang(function onLang() {
+    // 语言切换时刷新所有动态渲染的内容
+    applyStaticI18n();
+    renderCalendar(viewYear, viewMonth);
+    renderDay(selectedDate);
+    updateNavDate(selectedDate);
+    updateSelectedLabel(selectedDate);
+    // 更新"今天"按钮文字
+    $('btnToday').textContent = t('btnToday');
+  });
+
+  // ── Language 点击切换 ──
+  document.querySelectorAll('.lang-opt').forEach(el => {
+    el.addEventListener('click', () => setLang(el.dataset.lang));
+  });
+
   // ── 注册日历日期点击回调 ──
   setOnDateSelect(selectDate);
 

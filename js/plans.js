@@ -27,8 +27,8 @@ function renderDay(dateStr) {
   const plans = data.plans || [];
 
   if (plans.length === 0) {
-    planList.innerHTML = `<div class="empty-state">暂无规划<br>在下方添加今日事项</div>`;
-    planCount.textContent = '0 项';
+    planList.innerHTML = `<div class="empty-state">${t('emptyPlans')}<br>${t('emptyAddHint')}</div>`;
+    planCount.textContent = tf('items', { n: 0 });
     return;
   }
 
@@ -59,8 +59,8 @@ function renderDay(dateStr) {
               <button class="plan-delete" data-id="${p.id}">✕</button>
             </div>
             <div class="plan-completion">
-              <span class="plan-completion-label">完成情况</span>
-              <textarea placeholder="写下完成情况…" data-id="${p.id}">${escapeHtml(p.completion || '')}</textarea>
+              <span class="plan-completion-label">${t('completionLabel')}</span>
+              <textarea placeholder="${t('completionPlaceholder')}" data-id="${p.id}">${escapeHtml(p.completion || '')}</textarea>
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ function renderDay(dateStr) {
     `;
   }).join('');
 
-  planCount.textContent = `${plans.length} 项`;
+  planCount.textContent = tf('items', { n: plans.length });
 
   // 事件绑定
   planList.querySelectorAll('.plan-check').forEach(btn => {

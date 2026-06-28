@@ -15,7 +15,7 @@ const navDate = $('navDate');
 function renderCalendar(year, month) {
   viewYear = year;
   viewMonth = month;
-  calMonth.textContent = `${year}年${month + 1}月`;
+  calMonth.textContent = tf('monthFormat', { y: year, m: month + 1 });
 
   loadMonthNote(year, month);
 
@@ -26,6 +26,9 @@ function renderCalendar(year, month) {
   const prevLast = new Date(year, month, 0);
   const prevDays = prevLast.getDate();
   const today = todayStr();
+  // 星期行
+  const wds = t('weekdayShort').map(w => `<span>${w}</span>`).join('');
+  $('calGrid').previousElementSibling.innerHTML = wds;
   let html = '';
   const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
 
@@ -67,15 +70,14 @@ function renderCalendar(year, month) {
 
 function updateNavDate(dateStr) {
   const d = parseDate(dateStr);
-  navDate.textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  navDate.textContent = formatDateStr(d.getFullYear(), d.getMonth() + 1, d.getDate());
 }
 
 function updateSelectedLabel(dateStr) {
   const d = parseDate(dateStr);
-  const t = todayStr();
-  if (dateStr === t) { selectedDateLabel.textContent = '📌 今天'; return; }
-  const wk = ['日', '一', '二', '三', '四', '五', '六'];
-  selectedDateLabel.textContent = `${d.getMonth() + 1}月${d.getDate()}日 星期${wk[d.getDay()]}`;
+  const ts = todayStr();
+  if (dateStr === ts) { selectedDateLabel.textContent = t('todayLabel'); return; }
+  selectedDateLabel.textContent = tf('dateLabel', { m: d.getMonth() + 1, d: d.getDate(), w: t('weekdayNames')[d.getDay()] });
 }
 
 function collapseCalendar() {
