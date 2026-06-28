@@ -122,9 +122,9 @@ note/
 
 ## 🌐 浏览器支持
 
-| Safari 15+ | Chrome 90+ | Edge 90+ | Firefox 100+ |
-|:----------:|:----------:|:--------:|:------------:|
-| ✅ 最佳 | ✅ | ✅ | ⚠️ 毛玻璃略不同 |
+| Safari 15+ | Chrome 90+ | Edge 90+ | 
+|:----------:|:----------:|:--------:|
+| ✅ 最佳 | ✅ | ✅ |
 
 ---
 
@@ -132,4 +132,4 @@ note/
 
 MIT License — 随意使用、修改、分享。
 
-<em align="center">Made with ❤️ and a bit of Apple spirit.</em>
+
