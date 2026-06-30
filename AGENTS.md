@@ -9,7 +9,7 @@ The project is being rebuilt in stages:
 - Frontend: React + TypeScript + Vite in `apps/web`
 - Backend: FastAPI in `backend/app`
 - Database: SQLite as the primary backend data store
-- AI: mock fallback now, DeepSeek/OpenAI-compatible client in the next phase
+- AI: DeepSeek-first OpenAI-compatible client with mock fallback
 - Desktop roadmap: Tauri shell + PyInstaller sidecar + GitHub Release
 
 ## Current Entry Points
@@ -53,6 +53,7 @@ pytest backend/tests
 - Keep route definitions in `backend/app/routers`.
 - Keep business logic in `backend/app/services`.
 - Keep AI features demoable without an API key.
+- Do not expose API keys in read endpoints or logs.
 - Do not commit `.env`, `.venv`, `node_modules`, `dist`, `data`, cache files, or generated build output.
 
 ## User Preference

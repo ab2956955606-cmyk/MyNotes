@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import agent, health, month_notes, plans, preferences, rag
+from .routers import agent, health, month_notes, plans, preferences, rag, settings
 
 
 def create_app() -> FastAPI:
@@ -21,6 +21,7 @@ def create_app() -> FastAPI:
     app.include_router(agent.router)
     app.include_router(rag.router)
     app.include_router(preferences.router)
+    app.include_router(settings.router)
     return app
 
 

@@ -62,6 +62,8 @@ def init_db(conn: sqlite3.Connection) -> None:
           base_url TEXT NOT NULL DEFAULT 'https://api.deepseek.com',
           model TEXT NOT NULL DEFAULT 'deepseek-chat',
           api_key_encrypted TEXT NOT NULL DEFAULT '',
+          temperature REAL NOT NULL DEFAULT 0.3,
+          timeout_seconds INTEGER NOT NULL DEFAULT 40,
           updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -105,6 +107,14 @@ def init_db(conn: sqlite3.Connection) -> None:
         );
         """
     )
+    ensure_column(conn, "ai_settings", "temperature", "REAL NOT NULL DEFAULT 0.3")
+    ensure_column(conn, "ai_settings", "timeout_seconds", "INTEGER NOT NULL DEFAULT 40")
+
+
+def ensure_column(conn: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+    columns = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in columns:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def row_to_dict(row: sqlite3.Row | None) -> dict[str, object] | None:

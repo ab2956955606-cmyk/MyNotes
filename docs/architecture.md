@@ -9,6 +9,7 @@ flowchart LR
   API --> ROUTERS["Routers"]
   ROUTERS --> PLANS["Plans"]
   ROUTERS --> NOTES["Month Notes"]
+  ROUTERS --> SETTINGS["AI Settings"]
   ROUTERS --> AGENT["Planner Agent"]
   ROUTERS --> RAG["RAG Prototype"]
   ROUTERS --> MEM["Preference Memory"]
@@ -16,6 +17,10 @@ flowchart LR
 
   PLANS --> DB["SQLite"]
   NOTES --> DB
+  SETTINGS --> DB
+  AGENT --> LLM["OpenAI-compatible LLM Client"]
+  RAG --> LLM
+  LLM --> PROVIDER["DeepSeek / OpenAI / Custom"]
   AGENT --> DB
   RAG --> DB
   MEM --> DB
@@ -24,7 +29,16 @@ flowchart LR
 
 ## Data Flow
 
-The frontend is API-first for plans and month notes. When the backend is available, new data is stored in SQLite through FastAPI. When the backend is unavailable, the UI still works with localStorage so the app remains demoable from the frontend alone.
+The frontend is API-first for plans, month notes, and AI settings. When the backend is available, data is stored in SQLite through FastAPI. When the backend or AI provider is unavailable, the UI still works through localStorage and mock fallback.
+
+## LLM Flow
+
+1. The user saves provider, base URL, model, API key, temperature, and timeout in the AI workspace.
+2. `GET /api/ai/settings` returns only public settings and `hasApiKey`.
+3. `LlmClient` reads the latest settings for each request.
+4. If provider is `mock` or no key is available, AI features return deterministic mock output.
+5. If a key exists, `LlmClient` calls an OpenAI-compatible `/v1/chat/completions` endpoint.
+6. Success and failure records are written to `ai_runs`.
 
 ## Backend Layout
 
@@ -38,10 +52,13 @@ backend/app/
     health.py
     plans.py
     month_notes.py
+    settings.py
     agent.py
     rag.py
     preferences.py
   services/
+    ai_settings.py
+    llm.py
     plans.py
     month_notes.py
     planner.py
@@ -58,16 +75,16 @@ backend/app/
 | `plans` | Daily task records |
 | `month_notes` | Monthly notes |
 | `daily_reviews` | AI review output planned for later phases |
-| `ai_settings` | Provider/model settings planned for DeepSeek integration |
+| `ai_settings` | Provider, model, key state, temperature, and timeout |
 | `user_preferences` | Preference memory |
 | `documents` | Uploaded or pasted material metadata |
 | `document_chunks` | Retrieval chunks |
-| `ai_runs` | AI run logs and demo events |
+| `ai_runs` | AI call logs, mock fallback records, and error records |
 
 ## Interview Talking Points
 
-- The project moved from localStorage-only storage to an API-first SQLite data layer.
-- The frontend keeps a graceful local fallback, so demos do not fail when the backend is offline.
-- FastAPI routers separate public API shape from service-level business logic.
-- The SQLite schema already reserves space for reviews, provider settings, document chunks, and AI run logs.
-- The next phase can plug a DeepSeek-compatible client into the existing Agent/RAG/Memory flow.
+- The app moved from localStorage-only storage to an API-first SQLite data layer.
+- AI provider settings are persisted locally but API keys are not returned to the browser after save.
+- The LLM client is OpenAI-compatible, so DeepSeek, OpenAI, or a custom compatible endpoint can be swapped.
+- Planner and RAG services read the latest model settings on each request.
+- Mock fallback keeps the project demoable without paid credentials.

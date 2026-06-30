@@ -1,4 +1,4 @@
-import type { AppData, Plan, PlannerResponse, PlannerTask } from '../types';
+import type { AiSettings, AiSettingsInput, AiSettingsTestResult, AppData, Plan, PlannerResponse, PlannerTask } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
@@ -52,8 +52,8 @@ async function request<T>(path: string, init: RequestInit = {}, timeoutMs = 1800
   }
 }
 
-async function post<T>(path: string, payload: unknown): Promise<T> {
-  return request<T>(path, { method: 'POST', body: JSON.stringify(payload) });
+async function post<T>(path: string, payload: unknown, timeoutMs = 1800): Promise<T> {
+  return request<T>(path, { method: 'POST', body: JSON.stringify(payload) }, timeoutMs);
 }
 
 function fromBackendPlan(plan: BackendPlan): Plan {
@@ -122,6 +122,21 @@ export async function saveRemoteMonthNote(year: number, month: number, content: 
   });
 }
 
+export async function fetchAiSettings(): Promise<AiSettings> {
+  return request<AiSettings>('/api/ai/settings');
+}
+
+export async function saveAiSettings(payload: AiSettingsInput): Promise<AiSettings> {
+  return request<AiSettings>('/api/ai/settings', {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function testAiSettings(prompt = 'Say OK in one short sentence.'): Promise<AiSettingsTestResult> {
+  return post<AiSettingsTestResult>('/api/ai/test', { prompt }, 45000);
+}
+
 function fallbackTasks(payload: AiPayload): PlannerTask[] {
   const title = payload.goal || 'AI 应用开发实习';
   return [
@@ -133,7 +148,7 @@ function fallbackTasks(payload: AiPayload): PlannerTask[] {
 
 export async function generatePlan(payload: AiPayload): Promise<PlannerResponse> {
   try {
-    return await post<PlannerResponse>('/api/agent/plan', payload);
+    return await post<PlannerResponse>('/api/agent/plan', payload, 45000);
   } catch {
     return {
       mode: 'mock',
@@ -150,7 +165,7 @@ export async function generatePlan(payload: AiPayload): Promise<PlannerResponse>
 
 export async function reviewToday(payload: AiPayload): Promise<PlannerResponse> {
   try {
-    return await post<PlannerResponse>('/api/agent/review', payload);
+    return await post<PlannerResponse>('/api/agent/review', payload, 45000);
   } catch {
     const plans = payload.data[payload.date]?.plans ?? [];
     const done = plans.filter((plan) => plan.done).length;
@@ -164,7 +179,7 @@ export async function reviewToday(payload: AiPayload): Promise<PlannerResponse> 
 
 export async function askMaterials(payload: AiPayload): Promise<PlannerResponse> {
   try {
-    return await post<PlannerResponse>('/api/rag/query', payload);
+    return await post<PlannerResponse>('/api/rag/query', payload, 45000);
   } catch {
     const snippets = payload.materials.split(/\s+|，|。|,|\./).filter(Boolean).slice(0, 4);
     return {
@@ -185,7 +200,7 @@ export async function saveMemory(preferences: string): Promise<void> {
 
 export async function evaluatePlanner(payload: AiPayload): Promise<PlannerResponse> {
   try {
-    return await post<PlannerResponse>('/api/eval/planner', payload);
+    return await post<PlannerResponse>('/api/eval/planner', payload, 45000);
   } catch {
     return {
       mode: 'mock',

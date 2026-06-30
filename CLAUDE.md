@@ -9,7 +9,7 @@ Current stack:
 - React + TypeScript + Vite frontend in `apps/web`
 - FastAPI backend in `backend/app`
 - SQLite primary data layer
-- Mock AI fallback, with DeepSeek/OpenAI-compatible integration planned next
+- DeepSeek-first OpenAI-compatible LLM client with mock fallback
 
 ## Run
 
@@ -55,4 +55,5 @@ npm run lint
 - Store core planning data in SQLite through FastAPI.
 - Preserve localStorage fallback for frontend-only demos.
 - Preserve mock fallback for AI features until the real provider is configured.
+- Never return saved API keys from read endpoints.
 - Update README whenever the project stage, startup flow, or resume value changes.
