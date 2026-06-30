@@ -165,6 +165,14 @@ MyNotes 使用原生 HTML、CSS 和 JavaScript 编写。脚本通过 `<script>` 
 
 The product idea is intentionally small: make daily planning feel lighter. The calendar gives a sense of time, the plan list captures action, and completion notes preserve the details worth reviewing. Everything is stored locally in the current browser.
 
+### Interface Preview
+
+<p align="center">
+  <img src="assets/mynotes-demo-en.png" alt="MyNotes English interface feature walkthrough" width="860">
+</p>
+
+This screenshot walks through the English interface: the calendar presents monthly planning status, monthly notes keep goals and reminders, and the plan list shows time-based tasks with completion notes. The bottom input area creates new tasks quickly, while the top-right controls switch language and return to today.
+
 ### ✨ Experience
 
 | Area | Description |
