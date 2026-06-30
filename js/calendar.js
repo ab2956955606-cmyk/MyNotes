@@ -22,13 +22,13 @@ function renderCalendar(year, month) {
   const first = new Date(year, month, 1);
   const last = new Date(year, month + 1, 0);
   const daysInMonth = last.getDate();
-  let startOffset = (first.getDay() + 6) % 7;
+  const startOffset = (first.getDay() + 6) % 7;
   const prevLast = new Date(year, month, 0);
   const prevDays = prevLast.getDate();
   const today = todayStr();
   // 星期行
   const wds = t('weekdayShort').map(w => `<span>${w}</span>`).join('');
-  $('calGrid').previousElementSibling.innerHTML = wds;
+  calGrid.previousElementSibling.innerHTML = wds;
   let html = '';
   const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
 
@@ -80,18 +80,13 @@ function updateSelectedLabel(dateStr) {
   selectedDateLabel.textContent = tf('dateLabel', { m: d.getMonth() + 1, d: d.getDate(), w: t('weekdayNames')[d.getDay()] });
 }
 
-function collapseCalendar() {
-  calOpen = false;
-  calWrap.classList.add('collapsed');
-  calArrow.classList.remove('open');
-}
-
 function initCalendar() {
   // 日历折叠切换
   $('calToggle').addEventListener('click', () => {
     calOpen = !calOpen;
     calWrap.classList.toggle('collapsed', !calOpen);
     calArrow.classList.toggle('open', calOpen);
+    $('calToggle').setAttribute('aria-expanded', String(calOpen));
   });
 
   // 上一月 / 下一月

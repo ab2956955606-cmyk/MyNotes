@@ -38,7 +38,7 @@ function renderDay(dateStr) {
       <div class="plan-item ${doneClass}" data-id="${p.id}">
         <div class="plan-top">
           <span class="plan-num">${idx + 1}</span>
-          <button class="plan-check ${checkedClass}" data-id="${p.id}">
+          <button class="plan-check ${checkedClass}" type="button" data-id="${p.id}">
             <svg class="icon"><use href="#icon-check"></use></svg>
           </button>
           <div class="plan-body">
@@ -50,7 +50,7 @@ function renderDay(dateStr) {
                 <span class="pt-part">${p.time.split(':')[1] || '00'}</span>
               </span>` : ''}
               <span class="plan-text">${escapeHtml(p.text)}</span>
-              <button class="plan-delete" data-id="${p.id}" aria-label="${t('deletePlan')}"><svg class="icon"><use href="#icon-trash"></use></svg></button>
+              <button class="plan-delete" type="button" data-id="${p.id}" aria-label="${t('deletePlan')}"><svg class="icon"><use href="#icon-trash"></use></svg></button>
             </div>
             <div class="plan-completion">
               <span class="plan-completion-label">${t('completionLabel')}</span>

@@ -63,14 +63,14 @@
         <span class="lang-opt" data-lang="en">EN</span>
       </div>
       <span class="nav-date" id="navDate"></span>
-      <button class="btn-today" id="btnToday" data-i18n="btnToday">今天</button>
+      <button class="btn-today" id="btnToday" type="button" data-i18n="btnToday">今天</button>
     </div>
   </div>
-  <div class="nav-toggle" id="calToggle">
+  <button class="nav-toggle" id="calToggle" type="button" aria-expanded="true">
     <svg class="icon icon-sm"><use href="#icon-calendar"></use></svg>
     <span data-i18n="navToggle">日历</span>
     <span class="arrow" id="calArrow">▾</span>
-  </div>
+  </button>
 </header>
 
 <!-- ============ MAIN ============ -->
@@ -81,9 +81,9 @@
     <div class="calendar-card">
       <div class="cal-header">
         <div class="cal-nav">
-          <button class="cal-nav-btn" id="calPrev" aria-label="上一月"><svg class="icon"><use href="#icon-chevron-left"></use></svg></button>
+          <button class="cal-nav-btn" id="calPrev" type="button" aria-label="上一月"><svg class="icon"><use href="#icon-chevron-left"></use></svg></button>
           <span class="cal-month" id="calMonth"></span>
-          <button class="cal-nav-btn" id="calNext" aria-label="下一月"><svg class="icon"><use href="#icon-chevron-right"></use></svg></button>
+          <button class="cal-nav-btn" id="calNext" type="button" aria-label="下一月"><svg class="icon"><use href="#icon-chevron-right"></use></svg></button>
         </div>
       </div>
       <div class="cal-weekdays">
@@ -125,11 +125,11 @@
             <div class="tp-col-sep"></div>
             <div class="tp-col" id="tpColMin"></div>
           </div>
-          <div class="tp-confirm"><button id="tpConfirm" data-i18n="tpConfirm">完成</button></div>
+          <div class="tp-confirm"><button id="tpConfirm" type="button" data-i18n="tpConfirm">完成</button></div>
         </div>
       </div>
       <textarea id="planInput" placeholder="添加事项…" rows="1" data-i18n-placeholder="addPlaceholder"></textarea>
-      <button class="plan-add-btn" id="addPlanBtn" aria-label="添加"><svg class="icon"><use href="#icon-plus"></use></svg></button>
+      <button class="plan-add-btn" id="addPlanBtn" type="button" aria-label="添加"><svg class="icon"><use href="#icon-plus"></use></svg></button>
     </div>
   </div>
 

@@ -88,6 +88,8 @@
 .btn-today:active { transform: scale(.97); }
 
 .nav-toggle {
+  border: none;
+  background: transparent;
   display: inline-flex;
   align-items: center;
   gap: 6px;

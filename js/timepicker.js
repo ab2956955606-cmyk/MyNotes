@@ -31,7 +31,7 @@ function makeCol(container, range, val, onChange) {
   container.appendChild(inner);
 
   let ticking = false;
-  container.addEventListener('scroll', () => {
+  container.onscroll = () => {
     if (!ticking) {
       window.requestAnimationFrame(() => {
         ticking = false;
@@ -53,18 +53,18 @@ function makeCol(container, range, val, onChange) {
       });
       ticking = true;
     }
-  }, { passive: true });
+  };
 
-  container.addEventListener('click', (e) => {
+  container.onclick = (e) => {
     const el = e.target.closest('.tp-item');
     if (!el) return;
     const items = container.querySelectorAll('.tp-item');
     const idx = Array.from(items).indexOf(el);
     container.scrollTop = idx * H;
-    items.forEach(e => e.classList.remove('active'));
+    items.forEach(item => item.classList.remove('active'));
     el.classList.add('active');
     onChange(+el.dataset.val);
-  });
+  };
 }
 
 function scrollToCenter(container, val) {
@@ -123,5 +123,9 @@ function initTimePicker() {
     if (!e.target.closest('.time-wrap')) {
       tpDropdown.classList.remove('open');
     }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') tpDropdown.classList.remove('open');
   });
 }
