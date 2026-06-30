@@ -1,5 +1,0 @@
-<resources>
-    <style name="Theme.MyNotes" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:statusBarColor">#007AFF</item>
-    </style>
-</resources>

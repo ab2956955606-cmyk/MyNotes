@@ -16,10 +16,6 @@
   <img alt="License" src="https://img.shields.io/badge/License-MIT-1d1d1f">
 </p>
 
-<p align="center">
-  <img src="assets/mynotes-preview.png" alt="MyNotes interface preview" width="860">
-</p>
-
 ---
 
 ## 中文

@@ -10,10 +10,6 @@ Thumbs.db
 .vscode/
 *.sublime-*
 
-# 本地代理/工具配置
-.agents/
-.codex/
-
 # 临时文件
 *.log
 *.tmp
