@@ -20,17 +20,9 @@
 
 ## 中文
 
-**MyNotes** 是一款纯前端个人日常笔记与规划工具。它不需要账号、不需要后端、不需要构建流程，只需要打开 `index.html`，就可以在浏览器里记录每天要做的事、完成情况，以及每个月的备注。
+**MyNotes** 是一款纯前端个人日常笔记与规划工具。它不需要账号、不需要后端、不需要构建流程，只需要打开 `MyNotes.html`，就可以在浏览器里记录每天要做的事、完成情况，以及每个月的备注。
 
 它的设计目标很简单：让日常计划变得轻一点。日历负责提供时间感，规划列表负责承载行动，完成记录负责留下回顾的痕迹。所有数据都保存在当前浏览器本地，适合个人、离线、轻量的日常使用。
-
-### 界面预览
-
-<p align="center">
-  <img src="assets/mynotes-demo.png" alt="MyNotes 界面功能展示" width="860">
-</p>
-
-这张截图展示了 MyNotes 的主要使用场景：上方是可折叠的月历和月备注，日期会用颜色区分“有未完成规划”和“已全部完成”；下方是当天规划列表，每条规划包含时间、事项内容、完成勾选和完成情况记录。底部的时间选择器、输入框与添加按钮用于快速创建新事项，右上角可以切换中英文并回到今天。
 
 ### ✨ 核心体验
 
@@ -47,7 +39,7 @@
 
 ```text
 1. 下载或克隆项目
-2. 用浏览器打开 index.html
+2. 用浏览器打开 MyNotes.html
 3. 开始记录当天计划
 ```
 
@@ -116,7 +108,7 @@ MyNotes 的视觉方向参考 Apple Human Interface Guidelines：克制、清晰
 
 ```text
 note/
-├── index.html
+├── MyNotes.html
 ├── README.md
 ├── AGENTS.md
 ├── css/
@@ -161,17 +153,9 @@ MyNotes 使用原生 HTML、CSS 和 JavaScript 编写。脚本通过 `<script>` 
 
 ## English
 
-**MyNotes** is a pure frontend daily planner for personal notes, time-based tasks, and completion records. It has no account system, no backend, and no build process. Open `index.html` in a browser and start planning.
+**MyNotes** is a pure frontend daily planner for personal notes, time-based tasks, and completion records. It has no account system, no backend, and no build process. Open `MyNotes.html` in a browser and start planning.
 
 The product idea is intentionally small: make daily planning feel lighter. The calendar gives a sense of time, the plan list captures action, and completion notes preserve the details worth reviewing. Everything is stored locally in the current browser.
-
-### Interface Preview
-
-<p align="center">
-  <img src="assets/mynotes-demo-en.png" alt="MyNotes English interface feature walkthrough" width="860">
-</p>
-
-This screenshot walks through the English interface: the calendar presents monthly planning status, monthly notes keep goals and reminders, and the plan list shows time-based tasks with completion notes. The bottom input area creates new tasks quickly, while the top-right controls switch language and return to today.
 
 ### ✨ Experience
 
@@ -188,7 +172,7 @@ This screenshot walks through the English interface: the calendar presents month
 
 ```text
 1. Download or clone the project
-2. Open index.html in your browser
+2. Open MyNotes.html in your browser
 3. Start planning your day
 ```
 
@@ -257,7 +241,7 @@ Data is not synced across devices. Clearing browser data, switching browsers, or
 
 ```text
 note/
-├── index.html
+├── MyNotes.html
 ├── README.md
 ├── AGENTS.md
 ├── css/
