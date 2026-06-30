@@ -1,59 +1,62 @@
 # AGENTS.md - MyNotes AI
 
-## 项目定位
+## Project Overview
 
-MyNotes AI 是一个 AI 学习规划与复盘系统，目标是作为 AI 应用开发/AI 全栈实习作品。项目采用 React + TypeScript + Vite 前端，FastAPI 后端，包含日程管理、AI 计划生成、动态复盘、RAG 资料问答、偏好记忆、Agent 工具定义和规划质量评估。
+MyNotes AI is an AI learning planner and daily review system. The long-term target is a polished Windows desktop application that demonstrates AI application engineering for internship applications.
 
-入口文件是 `MyNotes.html`。完整应用必须通过 Vite dev server 或 build 后产物运行；直接用 file 协议打开时只显示启动说明。
+The project is being rebuilt in stages:
 
-## 技术栈
+- Frontend: React + TypeScript + Vite in `apps/web`
+- Backend: FastAPI in `backend/app`
+- Database: SQLite as the primary backend data store
+- AI: mock fallback now, DeepSeek/OpenAI-compatible client in the next phase
+- Desktop roadmap: Tauri shell + PyInstaller sidecar + GitHub Release
 
-- 前端：React 18、TypeScript、Vite
-- UI：自定义 CSS，Apple HIG 风格，lucide-react 图标
-- 后端：Python FastAPI
-- 数据：前端 localStorage，后端 SQLite
-- AI：mock fallback，后续可接 DeepSeek/OpenAI 兼容接口
-- 工程化：ESLint、GitHub Actions、Docker
+## Current Entry Points
 
-## 目录
+- Frontend entry: `apps/web/MyNotes.html`
+- Frontend app: `apps/web/src/App.tsx`
+- Backend app: `backend/app/main.py`
+- API routers: `backend/app/routers`
+- Backend services: `backend/app/services`
+- SQLite layer: `backend/app/db.py`
+- Tests: `backend/tests`
 
-```text
-src/
-  App.tsx
-  main.tsx
-  styles.css
-  components/
-  lib/
-  utils/
-backend/
-  app/
-    main.py
-    schemas.py
-    db.py
-    services/
-docs/
-  architecture.md
-MyNotes.html
-```
+## Commands
 
-## 开发命令
+Frontend:
 
 ```bash
+cd apps/web
 npm install
 npm run dev
 npm run build
+npm run test
+npm run lint
 ```
+
+Backend:
 
 ```bash
+python -m venv .venv
+.\.venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn backend.app.main:app --reload
+pytest backend/tests
 ```
 
-## 约定
+## Code Conventions
 
-- 前端新功能优先拆到 `src/components`、`src/lib` 或 `src/utils`。
-- Vite 构建入口配置为 `MyNotes.html`，不要再恢复旧版入口。
-- 不再使用旧版 `js/` 和 `css/` 全局脚本结构。
-- 后端 API 统一放在 `/api/*`。
-- AI 功能必须保留 mock fallback，保证没有 API key 也能演示。
-- 不提交 `.env`、`node_modules/`、`dist/`、`data/`、虚拟环境或缓存文件。
+- Keep frontend features inside `apps/web/src/components`, `apps/web/src/lib`, or `apps/web/src/utils`.
+- Do not restore the old root-level HTML/CSS/JS structure.
+- Keep API schema definitions in `backend/app/schemas.py`.
+- Keep route definitions in `backend/app/routers`.
+- Keep business logic in `backend/app/services`.
+- Keep AI features demoable without an API key.
+- Do not commit `.env`, `.venv`, `node_modules`, `dist`, `data`, cache files, or generated build output.
+
+## User Preference
+
+- Reply in Chinese.
+- Favor clean, practical, portfolio-quality engineering.
+- Keep changes staged by project phase and verify before reporting completion.

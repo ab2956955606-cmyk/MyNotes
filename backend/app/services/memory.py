@@ -1,5 +1,5 @@
-from backend.app.db import load_memory, save_memory
-from backend.app.schemas import MemoryPayload
+from ..db import load_memory, save_memory
+from ..schemas import MemoryPayload
 
 
 class MemoryStore:

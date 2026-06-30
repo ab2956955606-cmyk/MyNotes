@@ -1,8 +1,8 @@
 from collections import Counter
 from re import findall
 
-from backend.app.db import list_chunks, save_chunk
-from backend.app.schemas import AiPayload, RagIngestPayload
+from ..db import list_chunks, save_chunk
+from ..schemas import AiPayload, RagIngestPayload
 
 
 def chunk_text(text: str, size: int = 420) -> list[str]:

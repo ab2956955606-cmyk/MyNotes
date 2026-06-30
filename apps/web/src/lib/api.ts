@@ -1,4 +1,4 @@
-import type { AppData, PlannerResponse, PlannerTask } from '../types';
+import type { AppData, Plan, PlannerResponse, PlannerTask } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
@@ -12,25 +12,118 @@ interface AiPayload {
   data: AppData;
 }
 
-async function post<T>(path: string, payload: unknown): Promise<T> {
+interface BackendPlan {
+  id: string;
+  date: string;
+  time: string;
+  content: string;
+  done: boolean;
+  result: string;
+  priority: 'low' | 'medium' | 'high';
+  estimatedMinutes: number;
+  source: 'manual' | 'ai';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendMonthNote {
+  year: number;
+  month: number;
+  content: string;
+  updatedAt: string;
+}
+
+export type PlanPatch = Partial<Pick<Plan, 'time' | 'title' | 'done' | 'completion' | 'source'>>;
+
+async function request<T>(path: string, init: RequestInit = {}, timeoutMs = 1800): Promise<T> {
   const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), 1800);
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
+      ...init,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
+    if (res.status === 204) return undefined as T;
     return (await res.json()) as T;
   } finally {
     window.clearTimeout(timer);
   }
 }
 
+async function post<T>(path: string, payload: unknown): Promise<T> {
+  return request<T>(path, { method: 'POST', body: JSON.stringify(payload) });
+}
+
+function fromBackendPlan(plan: BackendPlan): Plan {
+  return {
+    id: plan.id,
+    time: plan.time,
+    title: plan.content,
+    done: plan.done,
+    completion: plan.result ?? '',
+    source: plan.source
+  };
+}
+
+function toBackendPlan(date: string, plan: Plan) {
+  return {
+    date,
+    time: plan.time,
+    content: plan.title,
+    done: plan.done,
+    result: plan.completion,
+    source: plan.source ?? 'manual',
+    priority: 'medium',
+    estimatedMinutes: 30
+  };
+}
+
+export async function fetchPlans(date: string): Promise<Plan[]> {
+  const params = new URLSearchParams({ date });
+  const plans = await request<BackendPlan[]>(`/api/plans?${params.toString()}`);
+  return plans.map(fromBackendPlan);
+}
+
+export async function createPlan(date: string, plan: Plan): Promise<Plan> {
+  const saved = await post<BackendPlan>('/api/plans', toBackendPlan(date, plan));
+  return fromBackendPlan(saved);
+}
+
+export async function updatePlan(id: string, patch: PlanPatch): Promise<Plan> {
+  const saved = await request<BackendPlan>(`/api/plans/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      time: patch.time,
+      content: patch.title,
+      done: patch.done,
+      result: patch.completion,
+      source: patch.source
+    })
+  });
+  return fromBackendPlan(saved);
+}
+
+export async function deletePlan(id: string): Promise<void> {
+  await request<void>(`/api/plans/${id}`, { method: 'DELETE' });
+}
+
+export async function fetchMonthNote(year: number, month: number): Promise<string> {
+  const params = new URLSearchParams({ year: String(year), month: String(month) });
+  const note = await request<BackendMonthNote>(`/api/month-notes?${params.toString()}`);
+  return note.content;
+}
+
+export async function saveRemoteMonthNote(year: number, month: number, content: string): Promise<void> {
+  await request<BackendMonthNote>('/api/month-notes', {
+    method: 'PUT',
+    body: JSON.stringify({ year, month, content })
+  });
+}
+
 function fallbackTasks(payload: AiPayload): PlannerTask[] {
-  const title = payload.goal || 'AI application internship';
+  const title = payload.goal || 'AI 应用开发实习';
   return [
     { time: '09:00', title: `拆解目标：${title}`, reason: '先把长期目标转成阶段里程碑，避免计划停留在口号。' },
     { time: '14:30', title: '实现一个可展示的项目功能', reason: '每天保留工程产出，面试时可以讲清楚设计和取舍。' },
@@ -100,7 +193,7 @@ export async function evaluatePlanner(payload: AiPayload): Promise<PlannerRespon
       results: [
         { case: '目标明确但时间有限', score: 5, reason: '计划覆盖阶段、日任务和复盘闭环。' },
         { case: '包含岗位 JD 资料', score: 4, reason: '已能提取关键词，后续可加入引用来源。' },
-        { case: '当天未完成任务', score: 4, reason: '可生成调整建议，还可继续增强自动重排。' }
+        { case: '当天未完成任务', score: 4, reason: '可生成调整建议，后续继续增强自动重排。' }
       ]
     };
   }

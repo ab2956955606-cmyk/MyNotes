@@ -1,6 +1,6 @@
-from backend.app.db import load_memory, save_event
-from backend.app.schemas import AiPayload
-from backend.app.services.tools import list_tools
+from ..db import load_memory, save_event
+from ..schemas import AiPayload
+from .tools import list_tools
 
 
 class PlannerAgent:
@@ -10,9 +10,9 @@ class PlannerAgent:
         goal = payload.goal or "AI application internship"
         return {
             "mode": "api",
-            "summary": f"围绕「{goal}」生成阶段计划，每天投入 {payload.daily_hours:g} 小时。",
+            "summary": f"已围绕“{goal}”生成阶段计划，每天投入 {payload.daily_hours:g} 小时。",
             "phases": [
-                {"title": "阶段 1：岗位能力对齐", "detail": "拆解 JD 高频技能，建立学习清单和刷题节奏。"},
+                {"title": "阶段 1：岗位能力对齐", "detail": "拆解目标岗位 JD 高频技能，建立学习清单和刷题节奏。"},
                 {"title": "阶段 2：AI 应用项目冲刺", "detail": "完成 RAG、Agent、Memory、Eval 和部署闭环。"},
                 {"title": "阶段 3：投递与复盘", "detail": "把项目讲法、简历 bullet 和面试题库联动优化。"},
             ],

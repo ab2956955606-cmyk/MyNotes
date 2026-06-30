@@ -2,30 +2,72 @@
 
 ```mermaid
 flowchart LR
-  U["User"] --> FE["React + TypeScript + Vite"]
-  FE --> LS["localStorage plans and notes"]
-  FE --> API["FastAPI /api"]
-  API --> AG["PlannerAgent"]
-  API --> RAG["RAG Service"]
-  API --> MEM["Preference Memory"]
-  API --> EV["Planner Evaluation"]
-  AG --> TOOLS["Agent Tools"]
-  RAG --> DB["SQLite"]
+  U["User"] --> FE["apps/web React + TypeScript + Vite"]
+  FE --> API["FastAPI API"]
+  FE --> LS["localStorage fallback"]
+
+  API --> ROUTERS["Routers"]
+  ROUTERS --> PLANS["Plans"]
+  ROUTERS --> NOTES["Month Notes"]
+  ROUTERS --> AGENT["Planner Agent"]
+  ROUTERS --> RAG["RAG Prototype"]
+  ROUTERS --> MEM["Preference Memory"]
+  ROUTERS --> EVAL["Planner Eval"]
+
+  PLANS --> DB["SQLite"]
+  NOTES --> DB
+  AGENT --> DB
+  RAG --> DB
   MEM --> DB
-  API --> DB
-  AG --> MOCK["Mock / LLM adapter"]
+  EVAL --> DB
 ```
 
-## Why This Architecture
+## Data Flow
 
-- React + TypeScript shows modern frontend engineering instead of only DOM scripting.
-- FastAPI separates AI workflows from the UI and makes the project easier to deploy.
-- RAG, Memory, Agent tools and Eval map directly to AI application internship keywords.
-- Mock mode keeps the demo stable without requiring a paid API key.
+The frontend is API-first for plans and month notes. When the backend is available, new data is stored in SQLite through FastAPI. When the backend is unavailable, the UI still works with localStorage so the app remains demoable from the frontend alone.
+
+## Backend Layout
+
+```text
+backend/app/
+  main.py
+  db.py
+  desktop_paths.py
+  schemas.py
+  routers/
+    health.py
+    plans.py
+    month_notes.py
+    agent.py
+    rag.py
+    preferences.py
+  services/
+    plans.py
+    month_notes.py
+    planner.py
+    rag.py
+    memory.py
+    evaluator.py
+    tools.py
+```
+
+## SQLite Tables
+
+| Table | Purpose |
+| --- | --- |
+| `plans` | Daily task records |
+| `month_notes` | Monthly notes |
+| `daily_reviews` | AI review output planned for later phases |
+| `ai_settings` | Provider/model settings planned for DeepSeek integration |
+| `user_preferences` | Preference memory |
+| `documents` | Uploaded or pasted material metadata |
+| `document_chunks` | Retrieval chunks |
+| `ai_runs` | AI run logs and demo events |
 
 ## Interview Talking Points
 
-- How local-first planning data differs from backend AI event data.
-- How pasted materials become retrievable chunks.
-- How preference memory changes planning rhythm.
-- How evaluation cases can be expanded into a real quality benchmark.
+- The project moved from localStorage-only storage to an API-first SQLite data layer.
+- The frontend keeps a graceful local fallback, so demos do not fail when the backend is offline.
+- FastAPI routers separate public API shape from service-level business logic.
+- The SQLite schema already reserves space for reviews, provider settings, document chunks, and AI run logs.
+- The next phase can plug a DeepSeek-compatible client into the existing Agent/RAG/Memory flow.

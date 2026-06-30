@@ -1,4 +1,4 @@
-from backend.app.schemas import AiPayload
+from ..schemas import AiPayload
 
 
 CRITERIA = [
