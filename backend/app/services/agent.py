@@ -1,8 +1,9 @@
 import json
 
-from ..db import save_event
+from ..db import load_memory, save_event
 from ..schemas import GoalRequest, ReviewRequest
 from .llm import LlmClient
+from .tools import AGENT_TOOLS
 
 
 class PlannerAgent:
@@ -14,13 +15,14 @@ class PlannerAgent:
             "Create a practical AI planner output as JSON with keys summary, phases, "
             "tasks and rationale. Tasks must include time, text and reason.\n\n"
             f"Goal: {req.goal}\nDeadline: {req.deadline}\nDaily hours: {req.daily_hours}\n"
-            f"Context: {req.context}"
+            f"Preferences: {req.preferences or load_memory()}\nContext: {req.context}"
         )
         raw = await self.llm.complete("You are an AI planning agent. Return strict JSON.", prompt)
         if raw:
             try:
                 data = json.loads(raw)
                 data["mode"] = "llm"
+                data.setdefault("tool_calls", self._tool_calls())
                 save_event("plan", json.dumps(data, ensure_ascii=False))
                 return data
             except json.JSONDecodeError:
@@ -61,4 +63,14 @@ class PlannerAgent:
                 {"time": "20:00", "text": "Review today and adjust tomorrow", "reason": "Dynamic replanning creates a closed loop."},
             ],
             "rationale": "The agent uses goal, available time and materials to create an actionable loop.",
+            "tool_calls": self._tool_calls(),
+            "preferences_used": req.preferences or load_memory(),
         }
+
+    def _tool_calls(self):
+        return [
+            {"tool": "search_materials", "input": {"query": "target JD and skill gaps", "top_k": 3}},
+            {"tool": "create_task", "input": {"time": "09:00", "text": "Analyze target JD and skill gaps"}},
+            {"tool": "create_task", "input": {"time": "14:30", "text": "Implement one demonstrable AI feature"}},
+            {"tool": "summarize_week", "input": {"week_start": "auto", "week_end": "auto"}},
+        ]

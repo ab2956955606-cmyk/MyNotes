@@ -2,7 +2,15 @@ import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(os.getenv("MYNOTES_DB_PATH", "data/mynotes.db"))
+
+def resolve_db_path() -> Path:
+    database_url = os.getenv("DATABASE_URL", "")
+    if database_url.startswith("sqlite:///"):
+        return Path(database_url.removeprefix("sqlite:///"))
+    return Path(os.getenv("MYNOTES_DB_PATH", "data/mynotes.db"))
+
+
+DB_PATH = resolve_db_path()
 
 
 def get_conn():
@@ -19,9 +27,58 @@ def get_conn():
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS memories (
+          user_id TEXT PRIMARY KEY,
+          preferences TEXT NOT NULL,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS rag_chunks (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          chunk TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
     return conn
 
 
 def save_event(kind: str, payload: str) -> None:
     with get_conn() as conn:
         conn.execute("INSERT INTO ai_events(kind, payload) VALUES (?, ?)", (kind, payload))
+
+
+def save_memory(user_id: str, preferences: str) -> None:
+    with get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO memories(user_id, preferences, updated_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(user_id)
+            DO UPDATE SET preferences = excluded.preferences, updated_at = CURRENT_TIMESTAMP
+            """,
+            (user_id, preferences),
+        )
+
+
+def load_memory(user_id: str = "local-user") -> str:
+    with get_conn() as conn:
+        row = conn.execute("SELECT preferences FROM memories WHERE user_id = ?", (user_id,)).fetchone()
+    return row["preferences"] if row else ""
+
+
+def save_rag_chunk(title: str, chunk: str) -> None:
+    with get_conn() as conn:
+        conn.execute("INSERT INTO rag_chunks(title, chunk) VALUES (?, ?)", (title, chunk))
+
+
+def load_rag_chunks() -> list[dict[str, str]]:
+    with get_conn() as conn:
+        rows = conn.execute("SELECT title, chunk FROM rag_chunks ORDER BY id DESC LIMIT 200").fetchall()
+    return [{"title": row["title"], "chunk": row["chunk"]} for row in rows]

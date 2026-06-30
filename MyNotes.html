@@ -173,10 +173,17 @@
       <textarea id="aiContextInput" rows="4" data-i18n-placeholder="aiContextPlaceholder" placeholder="粘贴岗位 JD、课程资料、个人基础或时间限制，AI 会基于这些内容制定计划。"></textarea>
     </label>
 
+    <label class="ai-field">
+      <span data-i18n="aiPreferenceLabel">偏好记忆</span>
+      <textarea id="aiPreferenceInput" rows="2" data-i18n-placeholder="aiPreferencePlaceholder" placeholder="例如：上午适合深度学习，晚上适合复盘，周末可以安排长任务。"></textarea>
+    </label>
+
     <div class="ai-actions">
       <button class="ai-btn primary" id="aiGenerateBtn" type="button" data-i18n="aiGenerate">生成阶段计划</button>
       <button class="ai-btn" id="aiReviewBtn" type="button" data-i18n="aiReview">复盘今天</button>
       <button class="ai-btn" id="aiSearchBtn" type="button" data-i18n="aiSearch">资料问答</button>
+      <button class="ai-btn" id="aiMemoryBtn" type="button" data-i18n="aiMemory">保存偏好</button>
+      <button class="ai-btn" id="aiEvalBtn" type="button" data-i18n="aiEval">运行评估</button>
       <button class="ai-btn" id="aiApplyBtn" type="button" data-i18n="aiApply">写入今天</button>
     </div>
 

@@ -12,15 +12,18 @@ async function aiPost(path, payload) {
   if (!AI_API_ENABLED) throw new Error('AI API disabled for file preview');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 1200);
-  const res = await fetch(`${AI_API_BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    signal: controller.signal
-  });
-  clearTimeout(timer);
-  if (!res.ok) throw new Error(`AI API ${res.status}`);
-  return res.json();
+  try {
+    const res = await fetch(`${AI_API_BASE}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    if (!res.ok) throw new Error(`AI API ${res.status}`);
+    return res.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function aiSetMode(mode) {
@@ -34,6 +37,7 @@ function getAiPayload() {
     deadline: $('aiDeadlineInput').value,
     daily_hours: Number($('aiHoursInput').value || 2),
     context: $('aiContextInput').value.trim(),
+    preferences: $('aiPreferenceInput').value.trim(),
     date: selectedDate || todayStr(),
     plans: getAllPlansSnapshot()
   };
@@ -85,6 +89,18 @@ function fallbackSearch(payload) {
   };
 }
 
+function fallbackEval() {
+  return {
+    average_score: 4.4,
+    criteria: ['actionable', 'time-aware', 'adaptive', 'context-grounded', 'reviewable'],
+    results: [
+      { case: t('aiEvalCase1'), score: 5, reason: t('aiEvalReasonStrong') },
+      { case: t('aiEvalCase2'), score: 4, reason: t('aiEvalReasonGood') },
+      { case: t('aiEvalCase3'), score: 4, reason: t('aiEvalReasonGood') }
+    ]
+  };
+}
+
 function renderAiPlan(data) {
   lastAiTasks = data.tasks || [];
   $('aiOutput').innerHTML = `
@@ -120,22 +136,45 @@ function renderAiSearch(data) {
   `;
 }
 
+function renderAiEval(data) {
+  lastAiTasks = [];
+  $('aiOutput').innerHTML = `
+    <h4>${t('aiEvalScore')}: ${escapeHtml(String(data.average_score || 0))}/5</h4>
+    <p>${(data.criteria || []).map(escapeHtml).join(' · ')}</p>
+    <ul>${(data.results || []).map(item => `<li><strong>${escapeHtml(String(item.score))}/5</strong> ${escapeHtml(item.case)} - ${escapeHtml(item.reason)}</li>`).join('')}</ul>
+  `;
+}
+
 async function runAi(kind) {
   const payload = getAiPayload();
   $('aiOutput').innerHTML = `<div class="ai-empty">${t('aiLoading')}</div>`;
   try {
-    const path = kind === 'plan' ? '/api/agent/plan' : kind === 'review' ? '/api/agent/review' : '/api/rag/query';
+    const path = kind === 'plan' ? '/api/agent/plan' : kind === 'review' ? '/api/agent/review' : kind === 'eval' ? '/api/eval/planner' : '/api/rag/query';
     const data = await aiPost(path, payload);
     aiSetMode('API AI');
     if (kind === 'plan') renderAiPlan(data);
     else if (kind === 'review') renderAiReview(data);
+    else if (kind === 'eval') renderAiEval(data);
     else renderAiSearch(data);
   } catch {
     aiSetMode('Mock AI');
     if (kind === 'plan') renderAiPlan(fallbackPlan(payload));
     else if (kind === 'review') renderAiReview(fallbackReview(payload));
+    else if (kind === 'eval') renderAiEval(fallbackEval());
     else renderAiSearch(fallbackSearch(payload));
   }
+}
+
+async function saveAiMemory() {
+  const preferences = $('aiPreferenceInput').value.trim();
+  localStorage.setItem('my_notes_preferences', preferences);
+  try {
+    await aiPost('/api/memory/preferences', { user_id: 'local-user', preferences });
+    aiSetMode('API AI');
+  } catch {
+    aiSetMode('Mock AI');
+  }
+  $('aiOutput').innerHTML = `<h4>${t('aiMemorySaved')}</h4><p>${escapeHtml(preferences || t('aiMemoryEmpty'))}</p>`;
 }
 
 function applyAiTasksToToday() {
@@ -163,8 +202,11 @@ function initAiPlanner() {
     d.setMonth(d.getMonth() + 3);
     deadline.value = fmtDate(d.getFullYear(), d.getMonth(), d.getDate());
   }
+  $('aiPreferenceInput').value = localStorage.getItem('my_notes_preferences') || '';
   $('aiGenerateBtn').addEventListener('click', () => runAi('plan'));
   $('aiReviewBtn').addEventListener('click', () => runAi('review'));
   $('aiSearchBtn').addEventListener('click', () => runAi('search'));
+  $('aiMemoryBtn').addEventListener('click', saveAiMemory);
+  $('aiEvalBtn').addEventListener('click', () => runAi('eval'));
   $('aiApplyBtn').addEventListener('click', applyAiTasksToToday);
 }

@@ -10,9 +10,10 @@
   <span>&nbsp;/&nbsp;</span>
   <a href="#english">English</a>
   <br><br>
-  <img alt="Pure Frontend" src="https://img.shields.io/badge/Pure%20Frontend-HTML%20CSS%20JS-0a84ff">
-  <img alt="No Backend" src="https://img.shields.io/badge/Backend-None-6e6e73">
-  <img alt="Storage" src="https://img.shields.io/badge/Storage-localStorage-30d158">
+  <img alt="Frontend" src="https://img.shields.io/badge/Frontend-HTML%20CSS%20JS-0a84ff">
+  <img alt="Backend" src="https://img.shields.io/badge/Backend-FastAPI-30d158">
+  <img alt="AI" src="https://img.shields.io/badge/AI-Agent%20RAG%20Memory-ff9f0a">
+  <img alt="Storage" src="https://img.shields.io/badge/Storage-localStorage%20%2B%20SQLite-6e6e73">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-1d1d1f">
 </p>
 
@@ -42,6 +43,8 @@
 | 📝 月备注 | 每个月拥有独立备注区，用来记录阶段目标、提醒或灵感。 |
 | ✨ AI 规划 | 输入长期目标、截止日期和每天可用时间，生成阶段计划与今日任务。 |
 | 🧠 RAG 问答 | 粘贴岗位 JD、学习资料或个人基础，返回相关片段和建议。 |
+| 🧩 Agent 工具 | 后端暴露任务创建、资料检索、周总结等工具定义。 |
+| 📊 评估体系 | 内置规划质量评估接口，按可执行性、时间感、上下文和复盘闭环打分。 |
 | 🌐 双语界面 | 支持中文与 English 切换，语言偏好自动保存。 |
 | 🔒 本地存储 | 数据写入 `localStorage`，关闭页面后仍会保留。 |
 
@@ -109,6 +112,8 @@ localStorage.setItem('my_notes_api_base', 'http://127.0.0.1:8000')
 - 点击“生成阶段计划”获得阶段拆解和今日建议任务。
 - 点击“复盘今天”根据当天完成情况生成复盘建议。
 - 点击“资料问答”对粘贴的 JD/资料做轻量 RAG 检索。
+- 点击“保存偏好”记录用户节奏，例如上午深度学习、晚上复盘。
+- 点击“运行评估”查看规划质量评分和测试案例。
 - 点击“写入今天”把 AI 生成的任务加入当天计划。
 
 ### 🎨 设计语言
@@ -145,14 +150,24 @@ note/
 ├── MyNotes.html
 ├── README.md
 ├── AGENTS.md
+├── CLAUDE.md
+├── Dockerfile
 ├── requirements.txt
 ├── .env.example
+├── docs/
+│   └── architecture.md
 ├── backend/
 │   └── app/
 │       ├── main.py
 │       ├── schemas.py
 │       ├── db.py
 │       └── services/
+│           ├── agent.py
+│           ├── evaluator.py
+│           ├── llm.py
+│           ├── memory.py
+│           ├── rag.py
+│           └── tools.py
 ├── css/
 │   ├── base.css
 │   ├── nav.css
@@ -174,7 +189,7 @@ note/
 
 ### 🛠️ 技术说明
 
-MyNotes 使用原生 HTML、CSS 和 JavaScript 编写。脚本通过 `<script>` 标签按顺序加载，不使用 ES Module、框架、包管理器或构建工具。
+MyNotes 的前端使用原生 HTML、CSS 和 JavaScript 编写。脚本通过 `<script>` 标签按顺序加载，不使用 ES Module、框架、包管理器或构建工具；后端作为可选增强，用 FastAPI 承载 Agent、RAG、Memory 和 Eval 能力。
 
 ```html
 <script src="js/helpers.js"></script>
@@ -195,15 +210,22 @@ MyNotes 使用原生 HTML、CSS 和 JavaScript 编写。脚本通过 `<script>` 
 | --- | --- |
 | `POST /api/agent/plan` | 根据目标、时间和资料生成阶段计划 |
 | `POST /api/agent/review` | 根据当天完成情况生成复盘建议 |
+| `GET /api/agent/tools` | 查看 Agent 可调用工具定义 |
+| `POST /api/memory/preferences` | 保存用户偏好记忆 |
+| `POST /api/rag/ingest` | 将资料切片写入轻量 RAG 库 |
 | `POST /api/rag/query` | 对资料/JD 做轻量检索问答 |
+| `POST /api/eval/planner` | 运行规划质量评估 |
 | `GET /api/health` | 健康检查 |
 
 `.env.example` 中提供了模型配置项。默认 `AI_PROVIDER=mock`，可以接入 DeepSeek/OpenAI 兼容接口。
 
+项目也提供 `Dockerfile` 和 [架构说明](docs/architecture.md)，方便把它作为 AI 应用作品集继续扩展和部署。
+
 ### 简历亮点
 
-- 独立实现 AI 日常规划助手，覆盖目标拆解、日程生成、动态复盘和资料问答。
-- 前端保持轻量原生实现，后端使用 FastAPI 暴露 Agent/RAG API。
+- 独立实现 AI 日常规划助手，覆盖目标拆解、日程生成、动态复盘、资料问答和质量评估。
+- 前端保持轻量原生实现，后端使用 FastAPI 暴露 Agent/RAG/Memory/Eval API。
+- 封装 `create_task`、`search_materials`、`summarize_week` 等 Agent 工具定义。
 - 设计 mock fallback，保证无 API key 时也能完整演示产品闭环。
 - 基于 localStorage 和 SQLite 分别承载前端任务数据与后端 AI 事件记录。
 
@@ -237,6 +259,8 @@ The screenshot shows the English interface in use: the calendar summarizes month
 | 📝 Monthly notes | Keep month-level goals, reminders, or loose thoughts. |
 | ✨ AI planning | Turn a long-term goal, deadline, and daily hours into phased tasks. |
 | 🧠 RAG QA | Paste JDs or learning materials and retrieve relevant snippets. |
+| 🧩 Agent tools | Backend exposes task creation, material search and weekly summary tools. |
+| 📊 Evaluation | Built-in planner evaluation scores actionability, timing, context and review loop. |
 | 🌐 Bilingual UI | Switch between Chinese and English with saved preference. |
 | 🔒 Local first | Data is stored in `localStorage` and remains after closing the page. |
 
@@ -304,6 +328,8 @@ The note area beside the calendar is stored per month. Switching months automati
 - Generate a phased plan and suggested tasks for today.
 - Review today based on actual completion data.
 - Ask pasted materials with a lightweight RAG flow.
+- Save user preference memory such as morning deep work and evening review.
+- Run planner quality evaluation with test cases.
 - Apply generated tasks directly to today’s plan.
 
 ### 🎨 Visual Direction
@@ -340,14 +366,24 @@ note/
 ├── MyNotes.html
 ├── README.md
 ├── AGENTS.md
+├── CLAUDE.md
+├── Dockerfile
 ├── requirements.txt
 ├── .env.example
+├── docs/
+│   └── architecture.md
 ├── backend/
 │   └── app/
 │       ├── main.py
 │       ├── schemas.py
 │       ├── db.py
 │       └── services/
+│           ├── agent.py
+│           ├── evaluator.py
+│           ├── llm.py
+│           ├── memory.py
+│           ├── rag.py
+│           └── tools.py
 ├── css/
 │   ├── base.css
 │   ├── nav.css
@@ -369,7 +405,7 @@ note/
 
 ### 🛠️ Technical Notes
 
-MyNotes is built with plain HTML, CSS, and JavaScript. Scripts are loaded in order with regular `<script>` tags. There are no ES Modules, frameworks, package managers, build tools, or backend services.
+The MyNotes frontend is built with plain HTML, CSS, and JavaScript. Scripts are loaded in order with regular `<script>` tags. There are no ES Modules, frontend frameworks, package managers, or build tools; the optional backend uses FastAPI for Agent, RAG, Memory, and Eval workflows.
 
 ```html
 <script src="js/helpers.js"></script>
@@ -380,8 +416,11 @@ MyNotes is built with plain HTML, CSS, and JavaScript. Scripts are loaded in ord
 <script src="js/timepicker.js"></script>
 <script src="js/calendar.js"></script>
 <script src="js/plans.js"></script>
+<script src="js/ai.js"></script>
 <script src="js/app.js"></script>
 ```
+
+The backend exposes planning, review, memory, RAG ingestion/query, tool listing, and planner evaluation endpoints. `Dockerfile` and [architecture notes](docs/architecture.md) are included for deployment and portfolio review.
 
 ### 🌐 Browser Support
 

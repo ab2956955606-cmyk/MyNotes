@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .schemas import GoalRequest, RagRequest, ReviewRequest
+from .schemas import EvalRequest, GoalRequest, MemoryRequest, RagIngestRequest, RagRequest, ReviewRequest
 from .services.agent import PlannerAgent
+from .services.evaluator import PlannerEvaluator
+from .services.memory import MemoryStore
 from .services.rag import RagIndex
+from .services.tools import list_tools
 
 app = FastAPI(title="MyNotes AI Planner API", version="0.2.0")
 
@@ -17,6 +20,8 @@ app.add_middleware(
 
 agent = PlannerAgent()
 rag = RagIndex()
+memory = MemoryStore()
+evaluator = PlannerEvaluator()
 
 
 @app.get("/api/health")
@@ -37,3 +42,28 @@ async def review_day(req: ReviewRequest):
 @app.post("/api/rag/query")
 async def query_materials(req: RagRequest):
     return rag.query(req)
+
+
+@app.post("/api/rag/ingest")
+async def ingest_materials(req: RagIngestRequest):
+    return rag.ingest(req)
+
+
+@app.post("/api/memory/preferences")
+async def save_preferences(req: MemoryRequest):
+    return memory.save(req)
+
+
+@app.get("/api/memory/preferences")
+async def get_preferences(user_id: str = "local-user"):
+    return memory.get(user_id)
+
+
+@app.get("/api/agent/tools")
+async def agent_tools():
+    return list_tools()
+
+
+@app.post("/api/eval/planner")
+async def evaluate_planner(req: EvalRequest):
+    return evaluator.run(req)
