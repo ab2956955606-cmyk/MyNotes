@@ -4,6 +4,9 @@ $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $WebDir = Join-Path $Root "apps\web"
 $IndexPath = Join-Path $WebDir "index.html"
 $DistIndexPath = Join-Path $WebDir "dist\index.html"
+$DesktopResourcesDir = Join-Path $Root "apps\desktop\src-tauri\resources"
+$DesktopAssetsDir = Join-Path $DesktopResourcesDir "assets"
+$DesktopIndexPath = Join-Path $DesktopResourcesDir "index.html"
 
 if (-not (Get-Command npm.cmd -ErrorAction SilentlyContinue)) {
     throw "npm.cmd was not found. Install Node.js 20+ before building the web app."
@@ -43,7 +46,20 @@ try {
         throw "Frontend build is incomplete. Missing required asset: $DistIndexPath"
     }
 
+    New-Item -ItemType Directory -Force -Path $DesktopResourcesDir | Out-Null
+    Copy-Item -LiteralPath $DistIndexPath -Destination $DesktopIndexPath -Force
+
+    if (Test-Path $DesktopAssetsDir) {
+        Remove-Item -LiteralPath $DesktopAssetsDir -Recurse -Force
+    }
+    Copy-Item -LiteralPath (Join-Path $WebDir "dist\assets") -Destination $DesktopAssetsDir -Recurse -Force
+
+    if (-not (Test-Path $DesktopIndexPath)) {
+        throw "Desktop resource sync failed. Missing: $DesktopIndexPath"
+    }
+
     Write-Host "Frontend index asset verified: $DistIndexPath"
+    Write-Host "Desktop frontend resources synced to: $DesktopResourcesDir"
 }
 finally {
     Pop-Location

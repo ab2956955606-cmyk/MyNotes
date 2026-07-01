@@ -2,19 +2,18 @@ use std::fs::{create_dir_all, OpenOptions};
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use tauri::{path::BaseDirectory, Manager};
-use tauri_plugin_shell::process::CommandChild;
-use tauri_plugin_shell::ShellExt;
 
-struct ApiSidecar(Mutex<Option<CommandChild>>);
+struct ApiSidecar(Mutex<Option<Child>>);
 
 impl Drop for ApiSidecar {
     fn drop(&mut self) {
         if let Ok(mut child) = self.0.lock() {
-            if let Some(child) = child.take() {
+            if let Some(mut child) = child.take() {
                 let _ = child.kill();
             }
         }
@@ -146,6 +145,31 @@ fn poll_api_health(port: String, log_path: PathBuf) {
     });
 }
 
+fn pipe_sidecar_output(
+    log_path: PathBuf,
+    label: &'static str,
+    pipe: Option<impl Read + Send + 'static>,
+) {
+    if let Some(mut pipe) = pipe {
+        std::thread::spawn(move || {
+            let mut buffer = [0_u8; 1024];
+            loop {
+                match pipe.read(&mut buffer) {
+                    Ok(0) => return,
+                    Ok(size) => {
+                        let text = String::from_utf8_lossy(&buffer[..size]);
+                        write_log(&log_path, format!("mynotes-api {label}: {}", text.trim()));
+                    }
+                    Err(err) => {
+                        write_log(&log_path, format!("mynotes-api {label} read error: {err}"));
+                        return;
+                    }
+                }
+            }
+        });
+    }
+}
+
 fn main() {
     let startup_log_path = log_path();
     write_log(&startup_log_path, "app start time");
@@ -174,7 +198,7 @@ fn main() {
                 }
             }
 
-            match app.path().resolve("index.html", BaseDirectory::Resource) {
+            match app.path().resolve("resources/index.html", BaseDirectory::Resource) {
                 Ok(index_path) => {
                     write_log(
                         &log_path,
@@ -201,36 +225,59 @@ fn main() {
             let port = std::env::var("MYNOTES_API_PORT").unwrap_or_else(|_| "8000".to_string());
             write_log(&log_path, format!("MYNOTES_API_PORT={port}"));
 
-            match app
+            let sidecar_path = match app
                 .path()
-                .resolve("binaries/mynotes-api.exe", BaseDirectory::Resource)
+                .resolve("resources/binaries/mynotes-api.exe", BaseDirectory::Resource)
             {
-                Ok(path) => write_log(
-                    &log_path,
-                    format!("sidecar expected path candidate: {}", path.display()),
-                ),
-                Err(err) => write_log(
-                    &log_path,
-                    format!("sidecar expected path resolve failed: {err}"),
-                ),
-            }
-
-            let sidecar = match app.shell().sidecar("binaries/mynotes-api") {
-                Ok(command) => command
-                    .env("MYNOTES_ENV", "desktop")
-                    .env("MYNOTES_API_PORT", port.clone()),
+                Ok(path) => {
+                    write_log(
+                        &log_path,
+                        format!(
+                            "sidecar expected path: {} exists={}",
+                            path.display(),
+                            path.exists()
+                        ),
+                    );
+                    path
+                }
                 Err(err) => {
                     let message = format!(
-                        "MyNotes AI 后端启动失败。可能原因：8000 端口被占用，或安装包不完整。请重启电脑后重试，或查看日志：{}",
+                        "MyNotes AI 后端启动失败。安装包不完整，缺少 resources\\binaries\\mynotes-api.exe。请重新安装最新 MSI，或查看日志：{}",
                         log_path.display()
                     );
-                    write_log(&log_path, format!("sidecar command creation failure: {err}"));
+                    write_log(&log_path, format!("sidecar expected path resolve failed: {err}"));
                     show_error("MyNotes AI", &message);
                     return Err(Box::new(err));
                 }
             };
 
-            let (mut receiver, child) = match sidecar.spawn() {
+            if !sidecar_path.exists() {
+                let message = format!(
+                    "MyNotes AI 后端启动失败。安装包不完整，缺少 resources\\binaries\\mynotes-api.exe。请重新安装最新 MSI，或查看日志：{}",
+                    log_path.display()
+                );
+                write_log(
+                    &log_path,
+                    format!("sidecar missing at {}", sidecar_path.display()),
+                );
+                show_error("MyNotes AI", &message);
+                return Err(std::io::Error::new(std::io::ErrorKind::NotFound, message).into());
+            }
+
+            let mut sidecar = Command::new(&sidecar_path);
+            sidecar
+                .env("MYNOTES_ENV", "desktop")
+                .env("MYNOTES_API_PORT", port.clone())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped());
+
+            #[cfg(windows)]
+            {
+                use std::os::windows::process::CommandExt;
+                sidecar.creation_flags(0x08000000);
+            }
+
+            let mut child = match sidecar.spawn() {
                 Ok(result) => result,
                 Err(err) => {
                     let message = format!(
@@ -244,14 +291,9 @@ fn main() {
             };
 
             write_log(&log_path, "sidecar start success");
+            pipe_sidecar_output(log_path.clone(), "stdout", child.stdout.take());
+            pipe_sidecar_output(log_path.clone(), "stderr", child.stderr.take());
             app.manage(ApiSidecar(Mutex::new(Some(child))));
-
-            let event_log_path = log_path.clone();
-            tauri::async_runtime::spawn(async move {
-                while let Some(event) = receiver.recv().await {
-                    write_log(&event_log_path, format!("mynotes-api sidecar: {event:?}"));
-                }
-            });
 
             poll_api_health(port, log_path);
 

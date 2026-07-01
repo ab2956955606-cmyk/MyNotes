@@ -1,6 +1,6 @@
 [package]
 name = "mynotes-ai-desktop"
-version = "1.1.1"
+version = "1.1.2"
 description = "MyNotes AI desktop shell"
 authors = ["MyNotes AI"]
 edition = "2021"

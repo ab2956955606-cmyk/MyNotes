@@ -1,4 +1,4 @@
-# MyNotes AI Desktop
+﻿# MyNotes AI Desktop
 
 This folder contains the Tauri desktop shell and Phase 8 Windows release pipeline.
 
@@ -30,12 +30,13 @@ http://127.0.0.1:5173
 
 ```powershell
 .\scripts\check-packaging-toolchain.ps1
-.\scripts\build-release.ps1 -Version 1.1.1
+.\scripts\build-release.ps1 -Version 1.1.2
 ```
 
 Outputs:
 
 ```text
-release/MyNotes-AI-v1.1.1-windows-x64.msi
-release/MyNotes-AI-v1.1.1-windows-x64.sha256
+release/MyNotes-AI-v1.1.2-windows-x64.msi
+release/MyNotes-AI-v1.1.2-windows-x64.sha256
 ```
+

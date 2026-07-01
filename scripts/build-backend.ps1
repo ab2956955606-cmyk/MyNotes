@@ -5,6 +5,7 @@ $VenvPython = Join-Path $Root ".venv\Scripts\python.exe"
 $Python = if (Test-Path $VenvPython) { $VenvPython } else { "python" }
 $SpecPath = Join-Path $Root "scripts\pyinstaller\mynotes-api.spec"
 $SidecarDir = Join-Path $Root "apps\desktop\src-tauri\binaries"
+$ResourceSidecarDir = Join-Path $Root "apps\desktop\src-tauri\resources\binaries"
 $TargetTriple = if ($env:MYNOTES_TAURI_TARGET) { $env:MYNOTES_TAURI_TARGET } else { "x86_64-pc-windows-msvc" }
 
 if (-not (Get-Command $Python -ErrorAction SilentlyContinue)) {
@@ -46,7 +47,16 @@ try {
         throw "Missing Tauri sidecar: $TauriSidecar"
     }
 
+    New-Item -ItemType Directory -Force -Path $ResourceSidecarDir | Out-Null
+    $ResourceSidecar = Join-Path $ResourceSidecarDir "mynotes-api.exe"
+    Copy-Item -LiteralPath $BuiltExe -Destination $ResourceSidecar -Force
+
+    if (-not (Test-Path $ResourceSidecar)) {
+        throw "Missing packaged resource sidecar: $ResourceSidecar"
+    }
+
     Write-Host "Sidecar copied to $TauriSidecar"
+    Write-Host "Resource sidecar copied to $ResourceSidecar"
 }
 finally {
     Pop-Location

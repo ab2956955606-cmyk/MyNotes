@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
   <br>
   <strong>MyNotes AI</strong>
   <br>
@@ -13,12 +13,10 @@
 ![MyNotes AI Chinese Demo](assets/mynotes-demo.png)
 ![MyNotes AI English Demo](assets/mynotes-demo-en.png)
 
-## 中文介绍
+## 涓枃浠嬬粛
 
-**MyNotes AI** 是一个面向学习、求职和长期目标管理的 AI 规划系统。它不是简单的日历或聊天框，而是把“目标输入、资料沉淀、AI 规划、日程执行、日报复盘、重排预览、资料问答”连成一个完整闭环。
-
-当前版本已经升级到强作品集方向：前端使用 React + TypeScript + Vite，后端使用 FastAPI，数据层使用 SQLite，AI 能力支持 DeepSeek / OpenAI-compatible 调用，并保留稳定 mock fallback，所以没有 API key 也能完整演示。项目支持粘贴资料、TXT/MD 文件上传、SQLite FTS5 全文索引、BM25 检索、引用来源展示、目标规划 grounding、六维规划质量评测，以及 Tauri + FastAPI sidecar 桌面化骨架。
-
+**MyNotes AI** 鏄竴涓潰鍚戝涔犮€佹眰鑱屽拰闀挎湡鐩爣绠＄悊鐨?AI 瑙勫垝绯荤粺銆傚畠涓嶆槸绠€鍗曠殑鏃ュ巻鎴栬亰澶╂锛岃€屾槸鎶娾€滅洰鏍囪緭鍏ャ€佽祫鏂欐矇娣€銆丄I 瑙勫垝銆佹棩绋嬫墽琛屻€佹棩鎶ュ鐩樸€侀噸鎺掗瑙堛€佽祫鏂欓棶绛斺€濊繛鎴愪竴涓畬鏁撮棴鐜€?
+褰撳墠鐗堟湰宸茬粡鍗囩骇鍒板己浣滃搧闆嗘柟鍚戯細鍓嶇浣跨敤 React + TypeScript + Vite锛屽悗绔娇鐢?FastAPI锛屾暟鎹眰浣跨敤 SQLite锛孉I 鑳藉姏鏀寔 DeepSeek / OpenAI-compatible 璋冪敤锛屽苟淇濈暀绋冲畾 mock fallback锛屾墍浠ユ病鏈?API key 涔熻兘瀹屾暣婕旂ず銆傞」鐩敮鎸佺矘璐磋祫鏂欍€乀XT/MD 鏂囦欢涓婁紶銆丼QLite FTS5 鍏ㄦ枃绱㈠紩銆丅M25 妫€绱€佸紩鐢ㄦ潵婧愬睍绀恒€佺洰鏍囪鍒?grounding銆佸叚缁磋鍒掕川閲忚瘎娴嬶紝浠ュ強 Tauri + FastAPI sidecar 妗岄潰鍖栭鏋躲€?
 ## English
 
 **MyNotes AI** is an AI planning and review system for learning, job search, and long-term goal management. It connects goal planning, knowledge grounding, calendar execution, daily review, replan preview, material Q&A, and local evaluation into one portfolio-ready AI application.
@@ -132,7 +130,19 @@ Normal users do not need Node.js, Python, Rust, Cargo, npm, pip, a command line,
 Do not download `Source code.zip` as the installer. Download the MSI asset:
 
 ```text
-release/MyNotes-AI-v1.1.1-windows-x64.msi
+release/MyNotes-AI-v1.1.2-windows-x64.msi
+```
+
+After installation, the app should have this shape:
+
+```text
+H:\mynotes\
+  mynotes.exe
+  resources\
+    index.html
+    assets\
+    binaries\
+      mynotes-api.exe
 ```
 
 If the desktop app shows `asset not found: index.html`, the installer was built incorrectly or the frontend assets are missing. Download the latest MSI again and reinstall.
@@ -153,14 +163,14 @@ npm run build
 Build the full release package:
 
 ```powershell
-.\scripts\build-release.ps1 -Version 1.1.1
+.\scripts\build-release.ps1 -Version 1.1.2
 ```
 
 The expected release assets are:
 
 ```text
-release/MyNotes-AI-v1.1.1-windows-x64.msi
-release/MyNotes-AI-v1.1.1-windows-x64.sha256
+release/MyNotes-AI-v1.1.2-windows-x64.msi
+release/MyNotes-AI-v1.1.2-windows-x64.sha256
 ```
 
 The release design is:
@@ -282,8 +292,8 @@ Installed MSI smoke test for developers:
 
 ## Resume Pitch
 
-独立开发 **MyNotes AI** 学习规划系统，基于 React + TypeScript + Vite 构建前端，使用 FastAPI + SQLite 实现本地数据层，支持日程管理、目标拆解、日报复盘、重排预览、资料库问答、文件上传、偏好记忆、模型配置和规划质量评估；实现 DeepSeek-first 的 OpenAI-compatible LLM client，并保留 mock fallback，保证无 API key 时也可完整演示；基于 SQLite FTS5/BM25 构建本地 RAG 检索能力，对粘贴资料和 TXT/MD 文件进行切片、索引、Top-K 召回和引用来源展示，并将检索结果接入目标规划流程；补齐 Tauri 桌面壳、FastAPI sidecar 打包入口、构建脚本和 CI 静态检查，为后续 Windows 安装包发布做准备。
-
+鐙珛寮€鍙?**MyNotes AI** 瀛︿範瑙勫垝绯荤粺锛屽熀浜?React + TypeScript + Vite 鏋勫缓鍓嶇锛屼娇鐢?FastAPI + SQLite 瀹炵幇鏈湴鏁版嵁灞傦紝鏀寔鏃ョ▼绠＄悊銆佺洰鏍囨媶瑙ｃ€佹棩鎶ュ鐩樸€侀噸鎺掗瑙堛€佽祫鏂欏簱闂瓟銆佹枃浠朵笂浼犮€佸亸濂借蹇嗐€佹ā鍨嬮厤缃拰瑙勫垝璐ㄩ噺璇勪及锛涘疄鐜?DeepSeek-first 鐨?OpenAI-compatible LLM client锛屽苟淇濈暀 mock fallback锛屼繚璇佹棤 API key 鏃朵篃鍙畬鏁存紨绀猴紱鍩轰簬 SQLite FTS5/BM25 鏋勫缓鏈湴 RAG 妫€绱㈣兘鍔涳紝瀵圭矘璐磋祫鏂欏拰 TXT/MD 鏂囦欢杩涜鍒囩墖銆佺储寮曘€乀op-K 鍙洖鍜屽紩鐢ㄦ潵婧愬睍绀猴紝骞跺皢妫€绱㈢粨鏋滄帴鍏ョ洰鏍囪鍒掓祦绋嬶紱琛ラ綈 Tauri 妗岄潰澹炽€丗astAPI sidecar 鎵撳寘鍏ュ彛銆佹瀯寤鸿剼鏈拰 CI 闈欐€佹鏌ワ紝涓哄悗缁?Windows 瀹夎鍖呭彂甯冨仛鍑嗗銆?
 ## License
 
 MIT
+

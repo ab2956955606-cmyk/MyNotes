@@ -1,5 +1,7 @@
 param(
     [string]$AppName = "MyNotes AI",
+    [string]$InstallDir = "",
+    [string]$ExeName = "mynotes.exe",
     [string]$HealthUrl = "http://127.0.0.1:8000/api/health",
     [int]$StartupSeconds = 8
 )
@@ -7,14 +9,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 $InstallRoots = @(
+    $InstallDir,
     Join-Path $env:LOCALAPPDATA "Programs\$AppName",
     Join-Path $env:ProgramFiles $AppName,
     Join-Path ${env:ProgramFiles(x86)} $AppName
-) | Where-Object { $_ -and (Test-Path $_) }
+) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -Unique
 
 $AppExe = $null
 foreach ($Root in $InstallRoots) {
-    $Candidate = Get-ChildItem -Path $Root -Filter "MyNotes AI.exe" -Recurse -ErrorAction SilentlyContinue |
+    $Candidate = Get-ChildItem -Path $Root -Filter $ExeName -Recurse -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
     if ($Candidate) {

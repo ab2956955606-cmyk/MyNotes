@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "1.1.1",
+    [string]$Version = "1.1.2",
     [switch]$CreateGitHubRelease
 )
 
@@ -16,7 +16,8 @@ $HashPath = Join-Path $ReleaseDir $HashName
 $DesktopDir = Join-Path $Root "apps\desktop"
 $TauriTargetDir = Join-Path $DesktopDir "src-tauri\target\release\bundle\msi"
 $WebIndexPath = Join-Path $Root "apps\web\dist\index.html"
-$SidecarPath = Join-Path $Root "apps\desktop\src-tauri\binaries\mynotes-api-x86_64-pc-windows-msvc.exe"
+$DesktopResourceIndexPath = Join-Path $Root "apps\desktop\src-tauri\resources\index.html"
+$SidecarPath = Join-Path $Root "apps\desktop\src-tauri\resources\binaries\mynotes-api.exe"
 
 New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
 
@@ -24,10 +25,13 @@ New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
 if (-not (Test-Path $WebIndexPath)) {
     throw "Missing frontend asset after web build: $WebIndexPath"
 }
+if (-not (Test-Path $DesktopResourceIndexPath)) {
+    throw "Missing desktop frontend resource after web build: $DesktopResourceIndexPath"
+}
 
 & (Join-Path $PSScriptRoot "build-backend.ps1")
 if (-not (Test-Path $SidecarPath)) {
-    throw "Missing Tauri sidecar: $SidecarPath"
+    throw "Missing packaged resource sidecar: $SidecarPath"
 }
 
 Push-Location $DesktopDir
@@ -78,7 +82,7 @@ Write-Host "Release installer: $InstallerPath"
 Write-Host "SHA256 file: $HashPath"
 
 if ($CreateGitHubRelease) {
-    $NotesPath = Join-Path $Root "docs\release-v1.1.1.md"
+    $NotesPath = Join-Path $Root "docs\release-v1.1.2.md"
     & (Join-Path $PSScriptRoot "check-packaging-toolchain.ps1") -RequireGitHubAuth
     $GhCommand = Get-Command "gh.exe" -ErrorAction SilentlyContinue
     if (-not $GhCommand) {
