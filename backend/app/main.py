@@ -7,9 +7,19 @@ from .routers import agent, health, month_notes, planning, plans, preferences, r
 def create_app() -> FastAPI:
     app = FastAPI(title="MyNotes AI API", version="2.1.0")
 
+    #
+    # CORS: desktop Tauri webview origin (https://tauri.localhost / tauri://localhost)
+    # and Vite dev-server origins. Binding to 127.0.0.1 means only local processes
+    # can reach the API, so allowing all origins is safe — no external access.
+    #
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_origins=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "https://tauri.localhost",
+            "tauri://localhost",
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

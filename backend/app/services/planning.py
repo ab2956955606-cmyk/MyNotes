@@ -121,7 +121,7 @@ class PlanningService:
         preferences = payload.preferences or load_memory()
         sources = self.rag.retrieve(" ".join([payload.goal, payload.materials]), limit=4)
         retrieved_sources = [source.model_dump(by_alias=True) for source in sources]
-        llm_result = LlmClient().complete(
+        llm_result, _ = LlmClient().complete(
             "planning_goal_plan",
             (
                 "You are an AI planning agent. Return strict JSON only with keys "
@@ -203,7 +203,7 @@ class PlanningService:
         done_count = len([plan for plan in plans if plan.get("done")])
         total_count = len(plans)
         unfinished = [plan for plan in plans if not plan.get("done")]
-        llm_result = LlmClient().complete(
+        llm_result, _ = LlmClient().complete(
             "planning_daily_review",
             (
                 "You are an AI daily review and replanning assistant. Return strict JSON only "

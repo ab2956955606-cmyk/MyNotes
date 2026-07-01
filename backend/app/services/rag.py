@@ -141,7 +141,7 @@ class RagService:
         query_text = " ".join(part for part in [payload.goal, payload.materials] if part.strip())
         sources = self.retrieve(query_text, limit=4)
         source_payload = [source.model_dump(by_alias=True) for source in sources]
-        llm_result = LlmClient().complete(
+        llm_result, _ = LlmClient().complete(
             "rag_query",
             (
                 "You answer study planning questions with the provided sources. "

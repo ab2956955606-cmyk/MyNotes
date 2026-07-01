@@ -129,4 +129,6 @@ export interface AiSettingsTestResult {
   message: string;
   provider: string;
   model: string;
+  errorType?: string;
+  statusCode?: number;
 }

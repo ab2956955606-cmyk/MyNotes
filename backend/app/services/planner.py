@@ -46,7 +46,7 @@ class PlannerAgent:
     def plan(self, payload: AiPayload) -> dict[str, object]:
         preferences = payload.preferences or load_memory()
         save_event("plan_request", payload.model_dump_json(by_alias=True))
-        llm_result = LlmClient().complete(
+        llm_result, _ = LlmClient().complete(
             "planner_plan",
             (
                 "You are an AI study and internship planning agent. "
@@ -83,7 +83,7 @@ class PlannerAgent:
         day = payload.data.get(payload.date, {}) if payload.data else {}
         plans = day.get("plans", [])
         done = len([plan for plan in plans if plan.get("done")])
-        llm_result = LlmClient().complete(
+        llm_result, _ = LlmClient().complete(
             "planner_review",
             (
                 "You are an AI daily review assistant. Return strict JSON only "

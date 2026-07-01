@@ -28,6 +28,7 @@ import type {
 import {
   applyReplanTasks,
   askMaterials,
+  checkBackendHealth,
   createDailyReview,
   createGoalPlan,
   createRagDocument,
@@ -203,6 +204,11 @@ export function AIWorkspace(props: AIWorkspaceProps) {
   }
 
   async function saveModelSettings() {
+    const backendUp = await checkBackendHealth();
+    if (!backendUp) {
+      setSettingsStatus('后端服务未启动，无法保存设置');
+      return;
+    }
     try {
       const saved = await saveAiSettings({
         provider: settings.provider,
@@ -221,11 +227,36 @@ export function AIWorkspace(props: AIWorkspaceProps) {
   }
 
   async function testModel() {
+    // First check if backend is reachable
+    const backendUp = await checkBackendHealth();
+    if (!backendUp) {
+      setSettingsStatus('后端服务未启动或连接失败，请确认后端已运行在 127.0.0.1:8000');
+      return;
+    }
+
     try {
       const test = await testAiSettings();
-      setSettingsStatus(test.ok ? test.message : t('settingsError'));
-    } catch {
-      setSettingsStatus(t('settingsError'));
+      if (test.ok) {
+        setSettingsStatus(test.message);
+      } else {
+        // Map error types to user-friendly messages
+        const errorMessages: Record<string, string> = {
+          no_key: 'API Key 未保存，请在设置中填入 API Key',
+          auth_error: 'API Key 无效或已过期',
+          insufficient_balance: '账户余额不足',
+          bad_model: '模型名不存在或不支持',
+          bad_base_url: 'Base URL 无法连接，请检查地址是否正确',
+          bad_request: '请求参数错误，请检查 Base URL 和模型名',
+          timeout: '模型服务请求超时，请检查网络或增大超时时间',
+          network_error: 'Base URL 无法连接，请检查地址是否正确',
+          server_error: '模型服务端错误，请稍后重试',
+          rate_limited: '请求过于频繁，请稍后重试',
+        };
+        const errorType = test.errorType ?? '';
+        setSettingsStatus(errorMessages[errorType] || test.message || '模型测试失败，请检查设置');
+      }
+    } catch (err) {
+      setSettingsStatus('请求后端失败，请重试');
     }
   }
 

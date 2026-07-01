@@ -171,6 +171,10 @@ class AiSettingsTestOut(BaseModel):
     message: str
     provider: str
     model: str
+    error_type: str = Field(default="", alias="errorType")
+    status_code: int = Field(default=0, alias="statusCode")
+
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class PhaseItem(BaseModel):

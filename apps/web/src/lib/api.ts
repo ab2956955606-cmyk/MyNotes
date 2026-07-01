@@ -15,7 +15,15 @@ import type {
   ReplanApplyPayload
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+//
+// API base URL:
+//   - DEV (Vite): empty string → same-origin, Vite proxy handles /api/*
+//   - PROD (Tauri/MSI): http://127.0.0.1:8000 → hits the FastAPI sidecar
+//   - Can be overridden with VITE_API_BASE env var.
+//
+const API_BASE =
+  import.meta.env.VITE_API_BASE ??
+  (import.meta.env.DEV ? '' : 'http://127.0.0.1:8000');
 
 interface AiPayload {
   goal: string;
@@ -50,7 +58,7 @@ interface BackendMonthNote {
 
 export type PlanPatch = Partial<Pick<Plan, 'time' | 'title' | 'done' | 'completion' | 'source'>>;
 
-async function request<T>(path: string, init: RequestInit = {}, timeoutMs = 1800): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}, timeoutMs = 5000): Promise<T> {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), timeoutMs);
   const isFormData = init.body instanceof FormData;
@@ -155,6 +163,16 @@ export async function saveAiSettings(payload: AiSettingsInput): Promise<AiSettin
 
 export async function testAiSettings(prompt = 'Say OK in one short sentence.'): Promise<AiSettingsTestResult> {
   return post<AiSettingsTestResult>('/api/ai/test', { prompt }, 45000);
+}
+
+/** Quick health check: returns true when the backend is reachable. */
+export async function checkBackendHealth(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/api/health`, { signal: AbortSignal.timeout(3000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function fetchRagDocuments(): Promise<RagDocument[]> {
